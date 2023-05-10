@@ -3,6 +3,7 @@ package com.cox.coxDemo.service;
 import com.cox.coxDemo.entity.Employee;
 import com.cox.coxDemo.entity.Universities;
 import com.cox.coxDemo.exception.EmptyInputException;
+import com.cox.coxDemo.exception.InvalidInputException;
 import com.cox.coxDemo.exception.NoValueFoundException;
 import com.cox.coxDemo.repository.UniversityRepository;
 import org.slf4j.Logger;
@@ -39,8 +40,13 @@ public class UniversityService {
     }
 
     public Mono<Employee> addEmployee(Employee employee) {
-        if(employee.getName().isEmpty() || employee.getName().length()==0 || employee.getAge().equals(null)){
+
+        if(employee.getName().isEmpty() || employee.getName().length()==0 || employee.getAge()==null) {
             throw new EmptyInputException("601","Input fields are empty");
+        }
+
+        if(employee.getAge()>100 || employee.getAge()<=0) {
+            throw new InvalidInputException("601","Input invalid, Please provide valid age");
         }
         return universityRepository.save(employee);
     }
