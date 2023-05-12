@@ -1,6 +1,7 @@
 package com.cox.coxDemo.controller;
 
-import com.cox.coxDemo.entity.Employee;
+import com.cox.coxDemo.dto.EmployeeDto;
+import com.cox.coxDemo.dto.UniversityDto;
 import com.cox.coxDemo.service.UniversityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,13 +18,13 @@ public class UniversityController {
     private UniversityService universityService;
 
     @GetMapping("/getAll")
-    public Flux<Object> getAllUniversities() {
+    public Flux<UniversityDto> getAllUniversities() {
         return universityService.getAllUniversities();
     }
 
     @PostMapping("/add")
-    public Mono<Employee> addEmployee(@RequestBody Employee employee) {
-        return universityService.addEmployee(employee);
+    public Mono<EmployeeDto> addEmployee(@RequestBody EmployeeDto employeeDto) {
+        return universityService.addEmployee(employeeDto);
     }
 
 }

@@ -1,15 +1,17 @@
 package com.cox.coxDemo.service;
 
+import com.cox.coxDemo.dto.EmployeeDto;
+import com.cox.coxDemo.dto.UniversityDto;
 import com.cox.coxDemo.entity.Employee;
 import com.cox.coxDemo.entity.Universities;
 import com.cox.coxDemo.exception.EmptyInputException;
 import com.cox.coxDemo.exception.InvalidInputException;
 import com.cox.coxDemo.exception.NoValueFoundException;
+import com.cox.coxDemo.mapping.EmployeeMapper;
 import com.cox.coxDemo.repository.UniversityRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import reactor.core.publisher.Flux;
@@ -29,17 +31,19 @@ public class UniversityService {
 
     private static final Logger logger = LoggerFactory.getLogger(UniversityService.class);
 
-    public Flux<Object> getAllUniversities() {
+    public Flux<UniversityDto> getAllUniversities() {
 
-        Universities[] listOfUniversity= restTemplate.getForObject("http://universities.hipolabs.com/search?country=United+States", Universities[].class);
+        UniversityDto[] listOfUniversity= restTemplate.getForObject("http://universities.hipolabs.com/search?country=United+States", UniversityDto[].class);
         if(listOfUniversity.equals(null)) {
             throw new NoValueFoundException("No values found");
         }
-        List<Universities> myList= Arrays.asList(listOfUniversity);
+        List<UniversityDto> myList= Arrays.asList(listOfUniversity);
         return Flux.fromIterable(myList);
     }
 
-    public Mono<Employee> addEmployee(Employee employee) {
+    public Mono<EmployeeDto> addEmployee(EmployeeDto employeeDto) {
+
+        Employee employee= EmployeeMapper.mapToEmployee(employeeDto);
 
         if(employee.getName().isEmpty() || employee.getName().length()==0 || employee.getAge()==null) {
             throw new EmptyInputException("601","Input fields are empty");
@@ -48,7 +52,10 @@ public class UniversityService {
         if(employee.getAge()>100 || employee.getAge()<=0) {
             throw new InvalidInputException("601","Input invalid, Please provide valid age");
         }
-        return universityRepository.save(employee);
+
+        Mono<Employee> saveEmployee= universityRepository.save(employee);
+
+        return saveEmployee.map(e->EmployeeMapper.mapToEmployeeDto(e));
     }
 
 
